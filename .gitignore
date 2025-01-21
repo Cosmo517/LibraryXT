@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 
 config/dev.cfg
+__pycache__
