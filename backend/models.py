@@ -41,7 +41,6 @@ class Shelf(Base):
     shelf_identifier = Column(String(16), nullable=False, index=True)
     bookcase_id = Column(Integer, ForeignKey('bookcase.id'), nullable=False, index=True)
 
-
 class Bookcase(Base):
     __tablename__ = 'bookcase'
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
