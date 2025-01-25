@@ -1,8 +1,11 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import toast, { Toaster } from 'react-hot-toast';
 import api from '../../common/api.jsx'
+import DataContext from '../Create.jsx';
 
 export const CreateGenre = () => {
+    const {tags, genres, bookcases, shelves, setTags, setGenres, setBookcases, setShelves} = useContext(DataContext);
+
     const [formData, setFormData] = useState({
         name: ''
     });
@@ -32,10 +35,21 @@ export const CreateGenre = () => {
         if (Object.keys(newErrors).length === 0) {
             let response = null;
             try {
-                response = await api.post('/tags/', formData);
+                response = await api.post('/genres/', formData);
             } catch (error) {
                 toast.error("Error creating tag: ", error)
             }
+
+            try {
+                const getGenres = await api.get('/genres/');
+                if (response.status == 200) {
+                    setGenres(getGenres.data);
+                }
+            } catch (error) {
+                console.error("Error getting genres:", error.message);
+                toast.error("Error getting genres: " + error.message);
+            }
+
             if (response.status == 200) {
                 toast.success("Successfully created tag!");
                 setFormData({
@@ -47,13 +61,14 @@ export const CreateGenre = () => {
 
     return (
         <div className="max-w-xl mt-8 p-4 bg-white rounded shadow-md">
-            <h1 className="font-semibold text-xl">Create a Genre</h1>
-            <form onSubmit={handleFormSubmit} className='py-4'>
-                <div>
-                    <input type='text' className='form-control border border-black ml-2' id='name' name='name' value={formData.name} placeholder=' Tag name' onChange={handleInputChange}/>
+            <h1 className="text-2xl font-bold mb-4 text-center">Create a Genre</h1>
+            <form onSubmit={handleFormSubmit}>
+            <label htmlFor='name' className='className="block text-gray-700 font-medium mb-2'>Genre Name:</label>
+                <div className='mt-2'>
+                    <input type='text' className='form-control border border-slate-300 px-4 py-2 rounded' id='name' name='name' value={formData.name} placeholder='Enter genre name' onChange={handleInputChange}/>
                     {errors.name && <p className="error">{errors.name}</p>}
                 </div>
-                <button type="submit" className='bg-cyan-700 px-7 py-2 mt-2 rounded-lg text-white'>Create</button>
+                <button type="submit" className='w-full bg-cyan-800 hover:bg-cyan-900 py-2 mt-2 rounded-md text-white'>Create</button>
             </form>
             <Toaster/>
         </div>

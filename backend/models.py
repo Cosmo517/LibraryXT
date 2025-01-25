@@ -38,14 +38,12 @@ class Shelf(Base):
     __tablename__= 'shelf'
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     shelf_name = Column(String(32), nullable=False)
-    shelf_identifier = Column(String(16), nullable=False, index=True)
     bookcase_id = Column(Integer, ForeignKey('bookcase.id'), nullable=False, index=True)
 
 class Bookcase(Base):
     __tablename__ = 'bookcase'
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     bookcase_name = Column(String(64), nullable=False)
-    bookcase_identifier = Column(String(32), nullable=False, index=True)
 
 class BookLocationHistory(Base):
     __tablename__ = "book_location_history"

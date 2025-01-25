@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict
+from fastapi import UploadFile
 
 # Handles dealing with Tag related data
 class TagBase(BaseModel):
@@ -25,18 +26,25 @@ class BookTagModel(BookTagBase):
 
 # Helps with handling Book related data
 class BookBase(BaseModel):
-    id: int
     isbn: str
     title: str
     author: str
     publisher: str
     page_count: int
     year_published: int
-    genre: int
-    directory: str
-    
-class BookCreate(BookBase):
     tags: Optional[List[TagCreate]] = []
+    
+
+class BookCreate(BookBase):
+    genre: str
+    shelf: str
+    cover: UploadFile
+    spine: UploadFile
+
+class BookModel(BookBase):
+    id: int
+    class Config:
+        from_attributes = True
 
 class BookModel(BookBase):
     id: int
@@ -47,29 +55,38 @@ class BookModel(BookBase):
 
 # Deals with the Genre data
 class GenreBase(BaseModel):
-    id: int
     name: str
+
+class GenreCreate(GenreBase):
+    pass
+
+class GenreModel(GenreBase):
+    id: int
     class config:
         from_atrributes = True
 
 # Deals with the Shelf data
-class ShelfBase(BaseModel):
+class ShelfCreate(BaseModel):
+    shelf_name: str
+
+class ShelfModel(BaseModel):
     id: int
     shelf_name: str
-    shelf_identifier: str
-    book_id: int
     bookcase_id: int
+
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # Deals with the Bookcase data
-class BookcaseBase(BaseModel):
+class BookcaseCreate(BaseModel):
+    bookcase_name: str
+    shelves: List[Dict[str, str]]
+
+class BookcaseModel(BaseModel):
     id: int
     bookcase_name: str
-    bookcase_identifier: str
-    
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # Deals with the Book Location History data
 class BookLocationHistoryBase(BaseModel):
