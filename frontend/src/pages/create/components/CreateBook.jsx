@@ -75,27 +75,67 @@ export const CreateBook = () => {
         });
     };
 
+    function handleFileChange(event) {
+        const { name, files } = event.target;
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            [name]: files[0], // Save the selected file in state
+        }));
+    }
+
     const handleFormSubmit = async (event) => {
         event.preventDefault();
         
         const newErrors = {};
 
-        if (!formData.name) {
-            newErrors.name = "Tag name cannot be blank";
-        }
+        // if (!formData.name) {
+        //     newErrors.name = " name cannot be blank";
+        // }
 
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length === 0) {
+
+            const newFormData = new FormData();
+            newFormData.append("isbn", formData.isbn);
+            newFormData.append("title", formData.title);
+            newFormData.append("author", formData.author);
+            newFormData.append("publisher", formData.publisher);
+            newFormData.append("page_count", formData.page_count);
+            newFormData.append("year_published", formData.year_published);
+            newFormData.append("genre", formData.genre);
+            newFormData.append("shelf", formData.shelf);
+            newFormData.append("tags", JSON.stringify(formData.tags));
+            newFormData.append("cover", formData.cover);
+            newFormData.append("spine", formData.spine); 
+
+            let response = null
+
             try {
-                let response = await api.post('/tags/', formData);
+                response = await api.post('/books/', newFormData,
+                    {
+                        headers: {'Content-Type': 'multipart/form-data'}
+                    }
+                );
             } catch (error) {
-                toast.error("Error creating tag: ", error)
+                toast.error("Error creating book: ", error)
             }
+
             if (response.status == 200) {
-                toast.success("Successfully created tag!");
+                toast.success("Successfully created book!");
                 setFormData({
-                    name: ''
+                    isbn: '',
+                    title: '',
+                    author: '',
+                    publisher: '',
+                    page_count: '',
+                    year_published: '',
+                    tags: [],
+                    genre: '',
+                    bookcase: '',
+                    shelf: '',
+                    cover: '',
+                    spine: ''
                 })
             }
         }
@@ -104,7 +144,7 @@ export const CreateBook = () => {
     const onSelect = (selectedList, selectedItem) => {
         setFormData((prevData) => ({
             ...prevData,
-            tags: selectedList.map((tag) => tag.name),
+            tags: selectedList.map((tag) => tag.id),
         }));
     };
     
@@ -116,7 +156,7 @@ export const CreateBook = () => {
     };
 
     return (
-        <div className="max-w-xl mt-8 p-4 bg-white rounded shadow-md">
+        <div className="max-w-xs mt-8 p-4 bg-white rounded shadow-md">
             <h1 className="text-2xl font-bold mb-4 text-center">Create a Book</h1>
             <form onSubmit={handleFormSubmit}>
                 <div className='mt-2 flex flex-col'>
@@ -145,10 +185,6 @@ export const CreateBook = () => {
                     onRemove={onRemove}
                     displayValue="name"
                     placeholder="Choose tags"
-                    style={{
-                        multiselectContainer: { border: "1px solid #d1d5db" },
-                        searchBox: { borderRadius: "0.375rem", padding: "0.5rem" },
-                    }}
                     />
                     
                     <label htmlFor='genre' className='className="block text-gray-700 font-medium mb-2'>Genre:</label>
@@ -163,7 +199,7 @@ export const CreateBook = () => {
                             Select a genre
                         </option>
                         {genres.map((genre) => (
-                            <option key={genre.id} value={genre.name}>
+                            <option key={genre.id} value={genre.id}>
                                 {genre.name}
                             </option>
                         ))}
@@ -199,7 +235,7 @@ export const CreateBook = () => {
                             Select a shelf
                         </option>
                         {shelves.map((shelf) => (
-                            shelf.bookcase_id == formData.bookcase ? <option key={shelf.id} value={shelf.shelf_name}>
+                            shelf.bookcase_id == formData.bookcase ? <option key={shelf.id} value={shelf.id}>
                                 {shelf.shelf_name}
                             </option> 
                             : null
@@ -207,10 +243,22 @@ export const CreateBook = () => {
                     </select>
 
                     <label htmlFor='cover' className='className="block text-gray-700 font-medium mb-2'>Cover:</label>
-                    <input type='file' className='form-control border border-slate-300 rounded px-4 py-2' id='cover' name='cover' value={formData.cover} placeholder='Enter book name' onChange={handleInputChange}/>
-                    
+                    <input
+                        type="file"
+                        className="form-control border border-slate-300 rounded px-4 py-2"
+                        id="cover"
+                        name="cover"
+                        onChange={handleFileChange}
+                    />      
+
                     <label htmlFor='spine' className='className="block text-gray-700 font-medium mb-2'>Spine:</label>
-                    <input type='file' className='form-control border border-slate-300 rounded px-4 py-2' id='name' name='spine' value={formData.spine} placeholder='Enter book name' onChange={handleInputChange}/>
+                    <input
+                        type="file"
+                        className="form-control border border-slate-300 rounded px-4 py-2"
+                        id="spine"
+                        name="spine"
+                        onChange={handleFileChange}
+                    />
                     {errors.name && <p className="error">{errors.name}</p>}
                 </div>
                 <button type="submit" className='w-full bg-cyan-800 hover:bg-cyan-900 py-2 mt-2 rounded-md text-white'>Create</button>

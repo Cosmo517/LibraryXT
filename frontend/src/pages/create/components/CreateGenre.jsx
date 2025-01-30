@@ -27,7 +27,7 @@ export const CreateGenre = () => {
         const newErrors = {};
 
         if (!formData.name) {
-            newErrors.name = "Tag name cannot be blank";
+            newErrors.name = "Genre name cannot be blank";
         }
 
         setErrors(newErrors);
@@ -37,7 +37,7 @@ export const CreateGenre = () => {
             try {
                 response = await api.post('/genres/', formData);
             } catch (error) {
-                toast.error("Error creating tag: ", error)
+                toast.error("Error creating genre: ", error)
             }
 
             try {
@@ -51,7 +51,7 @@ export const CreateGenre = () => {
             }
 
             if (response.status == 200) {
-                toast.success("Successfully created tag!");
+                toast.success("Successfully created genre!");
                 setFormData({
                     name: ''
                 })
@@ -66,7 +66,7 @@ export const CreateGenre = () => {
             <label htmlFor='name' className='className="block text-gray-700 font-medium mb-2'>Genre Name:</label>
                 <div className='mt-2'>
                     <input type='text' className='form-control border border-slate-300 px-4 py-2 rounded' id='name' name='name' value={formData.name} placeholder='Enter genre name' onChange={handleInputChange}/>
-                    {errors.name && <p className="error">{errors.name}</p>}
+                    {errors.name && <p className="text-red-500">{errors.name}</p>}
                 </div>
                 <button type="submit" className='w-full bg-cyan-800 hover:bg-cyan-900 py-2 mt-2 rounded-md text-white'>Create</button>
             </form>

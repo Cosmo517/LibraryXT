@@ -14,7 +14,6 @@ class Book(Base):
     page_count = Column(Integer, nullable=False)
     year_published = Column(Integer, nullable=False)
     genre_id = Column(Integer, ForeignKey('genre.id'), nullable=False)
-    directory = Column(String(256), nullable=False)
     shelf_id = Column(Integer, ForeignKey('shelf.id'), nullable=True)
 
 class Genre(Base):

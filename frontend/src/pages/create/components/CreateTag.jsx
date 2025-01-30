@@ -66,7 +66,7 @@ export const CreateTag = () => {
                 <label htmlFor='name' className='className="block text-gray-700 font-medium mb-2'>Tag Name:</label>
                 <div className='mt-2'>
                     <input type='text' className='form-control border border-slate-300 rounded px-4 py-2' id='name' name='name' value={formData.name} placeholder='Enter tag name' onChange={handleInputChange}/>
-                    {errors.name && <p className="error">{errors.name}</p>}
+                    {errors.name && <p className="text-red-500">{errors.name}</p>}
                 </div>
                 <button type="submit" className='w-full bg-cyan-800 hover:bg-cyan-900 py-2 mt-2 rounded-md text-white'>Create</button>
             </form>

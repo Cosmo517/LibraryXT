@@ -28,7 +28,7 @@ export const Create = () => {
     const value = {tags, genres, bookcases, shelves, setTags, setGenres, setBookcases, setShelves};
 
     return (
-        <div className="flex justify-evenly">
+        <div className="flex justify-around">
             <DataContext.Provider value={value}>
                 <CreateTag/>
                 <CreateGenre/>

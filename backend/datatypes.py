@@ -33,18 +33,6 @@ class BookBase(BaseModel):
     page_count: int
     year_published: int
     tags: Optional[List[TagCreate]] = []
-    
-
-class BookCreate(BookBase):
-    genre: str
-    shelf: str
-    cover: UploadFile
-    spine: UploadFile
-
-class BookModel(BookBase):
-    id: int
-    class Config:
-        from_attributes = True
 
 class BookModel(BookBase):
     id: int
