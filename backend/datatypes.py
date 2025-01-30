@@ -63,7 +63,7 @@ class ShelfModel(BaseModel):
     bookcase_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Deals with the Bookcase data
 class BookcaseCreate(BaseModel):
@@ -74,7 +74,7 @@ class BookcaseModel(BaseModel):
     id: int
     bookcase_name: str
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # Deals with the Book Location History data
 class BookLocationHistoryBase(BaseModel):
