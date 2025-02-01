@@ -1,16 +1,16 @@
-import React, {useContext, useState} from 'react'
-import toast, { Toaster } from 'react-hot-toast';
-import api from '../../common/api.jsx'
-import DataContext from '../Create.jsx';
+import React, { useState } from 'react'
+import { Toaster } from 'react-hot-toast';
+import { useCreateTag } from '../api/mutations/useCreateTag.jsx'
 
 export const CreateTag = () => {
-    const {tags, genres, bookcases, shelves, setTags, setGenres, setBookcases, setShelves} = useContext(DataContext);
 
     const [formData, setFormData] = useState({
         name: ''
     });
 
     const [errors, setErrors] = useState({});
+
+    const createTagMutation = useCreateTag();
 
     // handle any input change for the formData
     const handleInputChange = (event) => {
@@ -21,7 +21,7 @@ export const CreateTag = () => {
         });
     };
 
-    const handleFormSubmit = async (event) => {
+    const handleFormSubmit = (event) => {
         event.preventDefault();
         
         const newErrors = {};
@@ -33,29 +33,11 @@ export const CreateTag = () => {
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length === 0) {
-            let response = null;
-            try {
-                response = await api.post('/tags/', formData);
-            } catch (error) {
-                toast.error("Error creating tag: ", error)
-            }
-
-            try {
-                const getTags = await api.get('/tags/');
-                if (response.status == 200) {
-                    setTags(getTags.data);
-                }
-            } catch (error) {
-                console.error("Error getting tags:", error.message);
-                toast.error("Error getting tags: " + error.message);
-            }
-
-            if (response.status == 200) {
-                toast.success("Successfully created tag!");
-                setFormData({
-                    name: ''
-                })
-            }
+            createTagMutation.mutate(formData, {
+                onSuccess: () => {
+                    setFormData({ name: '' })
+                },
+            });
         }
     }
 

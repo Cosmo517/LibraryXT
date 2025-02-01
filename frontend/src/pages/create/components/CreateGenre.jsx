@@ -1,16 +1,16 @@
-import React, {useState, useContext} from 'react'
-import toast, { Toaster } from 'react-hot-toast';
-import api from '../../common/api.jsx'
-import DataContext from '../Create.jsx';
+import React, { useState } from 'react'
+import { Toaster } from 'react-hot-toast';
+import { useCreateGenre } from '../api/mutations/useCreateGenre.jsx';
 
 export const CreateGenre = () => {
-    const {tags, genres, bookcases, shelves, setTags, setGenres, setBookcases, setShelves} = useContext(DataContext);
 
     const [formData, setFormData] = useState({
         name: ''
     });
 
     const [errors, setErrors] = useState({});
+
+    const createGenreMutation = useCreateGenre();
 
     // handle any input change for the formData
     const handleInputChange = (event) => {
@@ -33,29 +33,11 @@ export const CreateGenre = () => {
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length === 0) {
-            let response = null;
-            try {
-                response = await api.post('/genres/', formData);
-            } catch (error) {
-                toast.error("Error creating genre: ", error)
-            }
-
-            try {
-                const getGenres = await api.get('/genres/');
-                if (response.status == 200) {
-                    setGenres(getGenres.data);
+            createGenreMutation.mutate(formData, {
+                onSuccess: () => {
+                    setFormData({ name: '' })
                 }
-            } catch (error) {
-                console.error("Error getting genres:", error.message);
-                toast.error("Error getting genres: " + error.message);
-            }
-
-            if (response.status == 200) {
-                toast.success("Successfully created genre!");
-                setFormData({
-                    name: ''
-                })
-            }
+            })
         }
     }
 

@@ -1,15 +1,14 @@
-import React, { useState, useContext } from "react";
-import toast, { Toaster } from 'react-hot-toast';
-import api from '../../common/api.jsx'
-import DataContext from '../Create.jsx';
+import React, { useState } from "react";
+import { Toaster } from 'react-hot-toast';
+import { useCreateBookcase } from "../api/mutations/useCreateBookcase.jsx";
 
 export const CreateBookshelf = () => {
     const [bookcaseName, setBookcaseName] = useState("");
     const [shelfCount, setShelfCount] = useState("");
     const [shelvesState, setShelvesState] = useState([]);
     const [error, setError] = useState("");
-    const {tags, genres, bookcases, shelves, setTags, setGenres, setBookcases, setShelves} = useContext(DataContext);
 
+    const createBookcaseMutation = useCreateBookcase();
 
     const handleShelfCountChange = (e) => {
         const value = e.target.value;
@@ -50,34 +49,14 @@ export const CreateBookshelf = () => {
             shelves: shelvesState.map(shelf => ({ shelf_name: shelf })),
         };
 
-
-        let response = null;
-        try {
-            response = await api.post('/bookshelf/', form);
-            if (response.status == 200) {
-                toast.success("Successfully created bookcase!");
+        createBookcaseMutation.mutate(form, {
+            onSuccess: () => {
                 setError("");
                 setBookcaseName("");
                 setShelfCount("");
                 setShelvesState([]);
             }
-        } catch (error) {
-            toast.error("Error creating bookcase: ", error.message)
-        }
-
-        // Grab all bookcase data and shelf data
-        try {
-            const getBookcases = await api.get('/bookcases/');
-            const getShelves = await api.get("/shelves/")
-            if (response.status == 200) {
-                setBookcases(getBookcases.data);
-                setShelves(getShelves.data)
-            }
-        } catch (error) {
-            console.error("Error getting bookcases or shelves:", error.message);
-            toast.error("Error getting bookcases shelves: " + error.message);
-        }
-
+        })
     };
 
     return (

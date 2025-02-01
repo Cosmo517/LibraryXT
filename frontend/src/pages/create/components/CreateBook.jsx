@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast';
-import api from '../../common/api.jsx'
-import DataContext from '../Create.jsx';
 import Multiselect from 'multiselect-react-dropdown'
+import { useGetTags } from '../api/queries/useGetTags.jsx';
+import { useGetGenres } from '../api/queries/useGetGenres.jsx';
+import { useGetBookcases } from '../api/queries/useGetBookcases.jsx';
+import { useGetShelves } from '../api/queries/useGetShelves.jsx';
+import { useCreateBook } from "../api/mutations/useCreateBook.jsx"
 
 export const CreateBook = () => {
-    const {tags, genres, bookcases, shelves, setTags, setGenres, setBookcases, setShelves} = useContext(DataContext);
-
     const [formData, setFormData] = useState({
         isbn: '',
         title: '',
@@ -22,49 +23,14 @@ export const CreateBook = () => {
         spine: ''
     });
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await api.get("/genres/");
-                if (response.status === 200) {
-                    setGenres(response.data);
-                }
-            } catch (error) {
-                toast.error("Failed to fetch genres: ", error.message);
-            }
-
-            try {
-                const response = await api.get("/tags/");
-                if (response.status === 200) {
-                    setTags(response.data);
-                }
-            } catch (error) {
-                toast.error("Failed to fetch tags: ", error.message);
-            }
-
-            try {
-                const response = await api.get("/bookcases/");
-                if (response.status === 200) { 
-                    setBookcases(response.data);
-                }
-            } catch (error) {
-                toast.error("Failed to fetch bookcases: ", error.message);
-            }
-            
-            try {
-                const response = await api.get("/shelves/");
-                if (response.status === 200) {
-                    setShelves(response.data);
-                }
-            } catch (error) {
-                toast.error("Failed to fetch shelves: ", error.message);
-            }
-        };
-    
-        fetchData(); // Call the async function
-    }, []);
+    const { data: tags, isLoading: tagsLoading, isError: tagsError } = useGetTags();
+    const { data: genres, isLoading: genresLoading, isError: genresError } = useGetGenres();
+    const { data: bookcases, isLoading: bookcasesLoading, isError: bookcasesError } = useGetBookcases();
+    const { data: shelves, isLoading: shelvesLoading, isError: shelvesError } = useGetShelves();
 
     const [errors, setErrors] = useState({});
+
+    const createBookMutation = useCreateBook();
 
     // handle any input change for the formData
     const handleInputChange = (event) => {
@@ -79,7 +45,7 @@ export const CreateBook = () => {
         const { name, files } = event.target;
         setFormData((prevFormData) => ({
             ...prevFormData,
-            [name]: files[0], // Save the selected file in state
+            [name]: files[0],
         }));
     }
 
@@ -109,35 +75,24 @@ export const CreateBook = () => {
             newFormData.append("cover", formData.cover);
             newFormData.append("spine", formData.spine); 
 
-            let response = null
-
-            try {
-                response = await api.post('/books/', newFormData,
-                    {
-                        headers: {'Content-Type': 'multipart/form-data'}
-                    }
-                );
-            } catch (error) {
-                toast.error("Error creating book: ", error)
-            }
-
-            if (response.status == 200) {
-                toast.success("Successfully created book!");
-                setFormData({
-                    isbn: '',
-                    title: '',
-                    author: '',
-                    publisher: '',
-                    page_count: '',
-                    year_published: '',
-                    tags: [],
-                    genre: '',
-                    bookcase: '',
-                    shelf: '',
-                    cover: '',
-                    spine: ''
-                })
-            }
+            createBookMutation.mutate(newFormData, {
+                onSuccess: () => {
+                    setFormData({
+                        isbn: '',
+                        title: '',
+                        author: '',
+                        publisher: '',
+                        page_count: '',
+                        year_published: '',
+                        tags: [],
+                        genre: '',
+                        bookcase: '',
+                        shelf: '',
+                        cover: '',
+                        spine: ''
+                    })
+                }
+            });
         }
     }
 
@@ -154,6 +109,10 @@ export const CreateBook = () => {
             tags: selectedList.map((tag) => tag.name),
         }));
     };
+
+    if (tagsLoading || genresLoading || bookcasesLoading || shelvesLoading) return <p>Loading...</p>;
+    
+    if (tagsError || genresError || bookcasesError || shelvesError) return <p>Error fetching data.</p>;
 
     return (
         <div className="max-w-xs mt-8 p-4 bg-white rounded shadow-md">

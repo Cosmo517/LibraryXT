@@ -171,10 +171,11 @@ async def create_genre(
     # Save cover and spine files
     cover_data = await cover.read()
     spine_data = await spine.read() 
-    with open(f"imgs/{new_book.isbn}/cover.jpg", "wb") as f:
-        f.write(cover_data)
+
+    with open(f"imgs/{new_book.isbn}_cover.jpg", "wb") as f:
+        f.write(cover_data) 
     
-    with open(f"imgs/{new_book.isbn}/spine.jpg", "wb") as f:
+    with open(f"imgs/{new_book.isbn}_spine.jpg", "wb") as f:
         f.write(spine_data)
 
     return new_book
