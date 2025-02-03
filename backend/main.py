@@ -1,14 +1,15 @@
-from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, Form
+from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, Form, Query
 from typing import Annotated
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import func
 import json
 from datatypes import *
 import models
 from models import *
 from datatypes import *
+import os
+import base64
 
 app = FastAPI()
 
@@ -179,3 +180,29 @@ async def create_genre(
         f.write(spine_data)
 
     return new_book
+
+PAGE_SIZE = 50
+
+@app.get("/books/")
+def getBooks(db: db_dependency, page: int = Query(1, alias="page", ge=1)):
+    start = (page - 1) *  PAGE_SIZE
+    end = start + PAGE_SIZE
+    
+    books = db.query(Book).offset(start).limit(end).all()
+    
+    if not books:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No more books")
+    
+    
+    books_dict = [BookModel.model_validate(book).model_dump() for book in books]
+    for book in books_dict:
+        print(book)
+        try:
+            with open(f"imgs/{book['isbn']}_cover.jpg", "rb") as f:
+                data = f.read()
+            book['cover'] = base64.b64encode(data)
+        except:
+            with open(f"common/no_image.jpg", "rb") as f:
+                data = f.read()
+            book['cover'] = base64.b64encode(data)
+    return books_dict
