@@ -181,28 +181,50 @@ async def create_genre(
 
     return new_book
 
-PAGE_SIZE = 50
+PAGE_SIZE = 5
 
 @app.get("/books/")
-def getBooks(db: db_dependency, page: int = Query(1, alias="page", ge=1)):
-    start = (page - 1) *  PAGE_SIZE
-    end = start + PAGE_SIZE
+def getBooks(db: db_dependency, 
+    page: int = Query(1, alias="page", ge=1),
+    search: Optional[str] = Query(None, alias="search"),
+    searchType: Optional[str] = Query(None, alias="searchType"),
+    genre: Optional[int] = Query(None, alias="genre"),
+    ):    
+    query = db.query(Book)
     
-    books = db.query(Book).offset(start).limit(end).all()
+    if searchType == "Title":
+        query = query.filter(Book.title.contains(search))
+    elif searchType == "Author":
+        query = query.filter(Book.author.contains(search))
+    elif searchType == "Genre":
+        query = query.filter(Book.genre_id == genre)
+    
+    start = (page - 1) *  PAGE_SIZE
+    
+    books = query.offset(start).limit(PAGE_SIZE).all()
+    
+    has_more = query.offset(start + PAGE_SIZE).first()
+    more_books = False
+    if has_more:
+        more_books = True
+    
+    print("Title:", search, "Type:", searchType, "Genre:", genre, "Page:", page)
     
     if not books:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No more books")
     
+    # Only read the data from no image and encode it once
+    with open(f"common/no_image.jpg", "rb") as f:
+        no_image_data = f.read()
+    no_image_encode = base64.b64encode(no_image_data)
     
     books_dict = [BookModel.model_validate(book).model_dump() for book in books]
     for book in books_dict:
-        print(book)
         try:
             with open(f"imgs/{book['isbn']}_cover.jpg", "rb") as f:
                 data = f.read()
             book['cover'] = base64.b64encode(data)
         except:
-            with open(f"common/no_image.jpg", "rb") as f:
-                data = f.read()
-            book['cover'] = base64.b64encode(data)
-    return books_dict
+            book['cover'] = no_image_encode
+
+    return {"books": books_dict, "has_more": more_books}
