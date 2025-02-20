@@ -42,7 +42,7 @@ export const CreateTag = () => {
     }
 
     return (
-        <div className="max-w-xl mt-8 p-4 bg-white rounded shadow-md">
+        <div className="max-w-xl mt-8 p-4 bg-white border-black  rounded shadow-md">
             <h1 className="text-2xl font-bold mb-4 text-center">Create a Tag</h1>
             <form onSubmit={handleFormSubmit}>
                 <label htmlFor='name' className='className="block text-gray-700 font-medium mb-2'>Tag Name:</label>

@@ -5,7 +5,7 @@ import { CreateGenre } from "./components/CreateGenre"
 
 export const Create = () => {
     return (
-        <div className="flex justify-around">
+        <div className="flex justify-around bg-gray-200">
             <CreateTag/>
             <CreateGenre/>
             <CreateBook/>
