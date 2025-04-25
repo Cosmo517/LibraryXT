@@ -52,7 +52,12 @@ export const Search = () => {
                         <ul className="grid grid-cols-6 gap-y-2">
 
                             {data && data["books"]?.map((book) => (
-                                <Book key={book.id} title={book.title} cover={book.cover}/>
+                                <Book key={book.id} title={book.title} cover={book.cover}
+                                spine={book.spine}
+                                author={book.author} genre={book.genre}
+                                publisher={book.publisher} page_count={book.page_count}
+                                year_published={book.year_published} tags={book.tags}
+                                isbn={book.isbn}/>
                             ))}
                         </ul>
                 )}

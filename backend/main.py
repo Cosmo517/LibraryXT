@@ -224,7 +224,12 @@ def getBooks(db: db_dependency,
             with open(f"imgs/{book['isbn']}_cover.jpg", "rb") as f:
                 data = f.read()
             book['cover'] = base64.b64encode(data)
+            
+            with open(f"imgs/{book['isbn']}_spine.jpg", "rb") as f:
+                data = f.read()
+            book['spine'] = base64.b64encode(data)
         except:
             book['cover'] = no_image_encode
+            book['spine'] = no_image_encode
 
     return {"books": books_dict, "has_more": more_books}
